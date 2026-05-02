@@ -1,0 +1,30 @@
+# Environment — never commit real tokens
+.env
+
+# SQLite database (auto-created at runtime)
+edututor.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual envs
+venv/
+.venv/
+env/
+
+# macOS
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+edututor.db*
