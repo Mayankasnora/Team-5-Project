@@ -26,6 +26,20 @@ code,pre{font-family:'JetBrains Mono',monospace!important;}
 #MainMenu,footer,header{visibility:hidden;}
 .block-container{padding:1.5rem 2.5rem 4rem!important;max-width:1280px!important;}
 
+/* ── FORCE SIDEBAR ALWAYS VISIBLE ── */
+section[data-testid="stSidebar"]{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:21rem!important;
+  min-width:21rem!important;
+  max-width:21rem!important;
+  transform:none!important;
+  position:relative!important;
+  left:0!important;
+}
+section[data-testid="stSidebarCollapsedControl"]{display:none!important;}
+
 /* ── Sidebar ── */
 section[data-testid="stSidebar"]{
   background:linear-gradient(180deg,rgba(18,8,36,0.98) 0%,rgba(0,12,32,0.98) 100%)!important;
@@ -324,30 +338,7 @@ section[data-testid="stSidebarCollapsedControl"] button:hover{
 </style>
 """, unsafe_allow_html=True)
 
-# ── Session state for sidebar visibility ──
-if "sidebar_visible" not in st.session_state:
-    st.session_state.sidebar_visible = True
 
-# Use window.parent JS (runs in component iframe → reaches parent Streamlit doc)
-import streamlit.components.v1 as _components
-if st.session_state.sidebar_visible:
-    _components.html("""<script>
-(function() {
-  var sidebar = window.parent.document.querySelector('section[data-testid="stSidebar"]');
-  var ctrl    = window.parent.document.querySelector('section[data-testid="stSidebarCollapsedControl"]');
-  if (sidebar) sidebar.style.display = 'flex';
-  if (ctrl)    ctrl.style.display    = 'none';
-})();
-</script>""", height=0)
-else:
-    _components.html("""<script>
-(function() {
-  var sidebar = window.parent.document.querySelector('section[data-testid="stSidebar"]');
-  var ctrl    = window.parent.document.querySelector('section[data-testid="stSidebarCollapsedControl"]');
-  if (sidebar) sidebar.style.display = 'none';
-  if (ctrl)    ctrl.style.display    = 'none';
-})();
-</script>""", height=0)
 
 # ═══════════════════════════════════════════════════════
 # CONSTANTS
@@ -506,6 +497,7 @@ with st.sidebar:
   <div style="font-size:.7rem;color:rgba(255,255,255,.28);letter-spacing:1px;text-transform:uppercase;margin-top:2px">Adaptive AI Tutor</div>
 </div>""", unsafe_allow_html=True)
 
+
     st.markdown('<div class="sec-lbl">Session</div>', unsafe_allow_html=True)
 
     if st.session_state.phase == "setup":
@@ -560,17 +552,7 @@ with st.sidebar:
   </div>
 </div>""", unsafe_allow_html=True)
 
-
-
     st.markdown('<div style="font-size:.68rem;color:rgba(255,255,255,.18);text-align:center;line-height:1.8">UGDSAI 29 · Problem 5<br>LangGraph Reflection Loop</div>', unsafe_allow_html=True)
-
-# ── Sidebar toggle button ──────────────────────────────────────────────────
-_tog_label = "◀ Hide Sidebar" if st.session_state.sidebar_visible else "▶ Show Sidebar"
-_tog_col, _ = st.columns([1, 5])
-with _tog_col:
-    if st.button(_tog_label, key="sidebar_tog", type="secondary"):
-        st.session_state.sidebar_visible = not st.session_state.sidebar_visible
-        st.rerun()
 
 # ═══════════════════════════════════════════════════════
 # HERO
