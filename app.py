@@ -317,8 +317,37 @@ section[data-testid="stSidebarCollapsedControl"] button:hover{
 
 /* ── STRAT POOL dots ── */
 .pool-wrap{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;align-items:center;}
+
+/* ── Sidebar hidden state ── */
+.sidebar-hidden section[data-testid="stSidebar"]{display:none!important;}
+.sidebar-hidden section[data-testid="stSidebarCollapsedControl"]{display:none!important;}
 </style>
 """, unsafe_allow_html=True)
+
+# ── Session state for sidebar visibility ──
+if "sidebar_visible" not in st.session_state:
+    st.session_state.sidebar_visible = True
+
+# Use window.parent JS (runs in component iframe → reaches parent Streamlit doc)
+import streamlit.components.v1 as _components
+if st.session_state.sidebar_visible:
+    _components.html("""<script>
+(function() {
+  var sidebar = window.parent.document.querySelector('section[data-testid="stSidebar"]');
+  var ctrl    = window.parent.document.querySelector('section[data-testid="stSidebarCollapsedControl"]');
+  if (sidebar) sidebar.style.display = 'flex';
+  if (ctrl)    ctrl.style.display    = 'none';
+})();
+</script>""", height=0)
+else:
+    _components.html("""<script>
+(function() {
+  var sidebar = window.parent.document.querySelector('section[data-testid="stSidebar"]');
+  var ctrl    = window.parent.document.querySelector('section[data-testid="stSidebarCollapsedControl"]');
+  if (sidebar) sidebar.style.display = 'none';
+  if (ctrl)    ctrl.style.display    = 'none';
+})();
+</script>""", height=0)
 
 # ═══════════════════════════════════════════════════════
 # CONSTANTS
@@ -534,6 +563,14 @@ with st.sidebar:
 
 
     st.markdown('<div style="font-size:.68rem;color:rgba(255,255,255,.18);text-align:center;line-height:1.8">UGDSAI 29 · Problem 5<br>LangGraph Reflection Loop</div>', unsafe_allow_html=True)
+
+# ── Sidebar toggle button ──────────────────────────────────────────────────
+_tog_label = "◀ Hide Sidebar" if st.session_state.sidebar_visible else "▶ Show Sidebar"
+_tog_col, _ = st.columns([1, 5])
+with _tog_col:
+    if st.button(_tog_label, key="sidebar_tog", type="secondary"):
+        st.session_state.sidebar_visible = not st.session_state.sidebar_visible
+        st.rerun()
 
 # ═══════════════════════════════════════════════════════
 # HERO
