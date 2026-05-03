@@ -116,3 +116,9 @@ EduTutor/
 | `GITHUB_TOKEN` | GitHub personal access token for [GitHub Models API](https://github.com/marketplace/models) |
 
 The app uses `gpt-4o-mini` via the GitHub Models inference endpoint (`https://models.inference.ai.azure.com`) — **completely free** with a GitHub account.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request or open an issue if you have suggestions for new teaching strategies or UI improvements.
