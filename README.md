@@ -1,6 +1,5 @@
 # 🎓 EduTutor — Adaptive AI Tutor
 
-> **UGDSAI 29 · Problem 5 · End-Semester Assignment**  
 > An adaptive AI tutoring system built with **LangGraph**, **Streamlit**, and the **GitHub Models API**.
 
 ---
