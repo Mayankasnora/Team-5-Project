@@ -1,46 +1,131 @@
-# 🎓 EduTutor — Adaptive AI Tutor
+<div align="center">
 
-> An adaptive AI tutoring system built with **LangGraph**, **Streamlit**, and the **GitHub Models API**.
+<!-- Animated Header -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:667eea,100:764ba2&height=200&section=header&text=EduTutor%20AI&fontSize=60&fontColor=ffffff&fontAlignY=38&desc=Adaptive%20AI%20Tutoring%20System&descAlignY=58&descSize=20&animation=fadeIn" width="100%"/>
+
+<!-- Badges Row 1 -->
+<p>
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white"/>
+  <img src="https://img.shields.io/badge/LangGraph-Agent-FF6B35?style=for-the-badge&logo=langchain&logoColor=white"/>
+  <img src="https://img.shields.io/badge/GPT--4o--mini-GitHub%20Models-24292e?style=for-the-badge&logo=openai&logoColor=white"/>
+</p>
+
+<!-- Badges Row 2 -->
+<p>
+  <img src="https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/SQLite-Persistence-003B57?style=for-the-badge&logo=sqlite&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge"/>
+  <img src="https://img.shields.io/github/forks/Mayankasnora/EduTutor-AI?style=for-the-badge&color=764ba2"/>
+</p>
+
+<br/>
+
+> 🎓 **An adaptive AI tutoring system** that learns *how you learn* — powered by **LangGraph**, **Streamlit**, and the **GitHub Models API** (completely free).
+
+<br/>
+
+<!-- Quick Nav -->
+**[✨ Features](#-key-features) · [🏗️ Architecture](#️-architecture) · [🚀 Setup](#-setup) · [📁 Structure](#-project-structure) · [👥 Team](#-team)**
+
+<br/>
+
+</div>
+
+---
+
+## 🌟 What Makes EduTutor Different?
+
+<table>
+<tr>
+<td width="50%">
+
+**🧠 It adapts to YOU**
+EduTutor doesn't just explain once and move on. It detects *why* you're stuck — no understanding, partial grasp, or almost there — and picks the perfect teaching strategy to address your specific gap.
+
+</td>
+<td width="50%">
+
+**🔁 True Interrupt-Resume AI Loop**
+Built on LangGraph's `interrupt_before` mechanism, the agent genuinely pauses mid-graph, waits for your answer, then resumes with full context — not a chatbot pretending to think.
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**📈 Tracks mastery across sessions**
+SQLite persistence means your progress survives restarts. A leaderboard tracks concept mastery across all sessions.
+
+</td>
+<td width="50%">
+
+**🆓 Completely free to run**
+Uses `gpt-4o-mini` via the GitHub Models inference endpoint — just a free GitHub account needed.
+
+</td>
+</tr>
+</table>
+
+---
+
+## ✨ Key Features
+
+<div align="center">
+
+| 🎯 Feature | 📋 Detail |
+|:---|:---|
+| **5 Teaching Strategies** | Analogy · Example · Step-by-Step · Visual · Socratic |
+| **Smart Strategy Selection** | `STRATEGY_PRIORITY` matrix routes based on failure type (`no_understanding` / `partial` / `almost`) |
+| **Context-Aware Retry** | Explainer addresses the *specific* misconception from prior feedback |
+| **Adaptive Difficulty** | Questions escalate: `recall → application → analysis` |
+| **No Answer Leakage** | Multi-layer regex filter strips answer-revealing lines from questions |
+| **SQLite Persistence** | `SqliteSaver` checkpointer + `concept_mastery` table survive restarts |
+| **Cross-Concept Mastery** | Persistent leaderboard across all sessions and concepts |
+| **LangGraph Graph Viz** | Sidebar expander shows live `draw_mermaid()` output |
+| **Custom Concept Input** | Any CS/math concept via Wikipedia — not limited to presets |
+| **Rich Extras** | Plotly charts · worked examples · code snippets · fun facts per concept |
+
+</div>
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-topic_loader → strategy_selector → explainer → question_generator
-                      ↑                               ↓
-                (retry edge)         [INTERRUPT before response_evaluator]
-                      |                               ↓
-                      └──── decision_gate ←── response_evaluator
-                                   |
-                              (done edge)
-                                   ↓
-                           mastery_recorder → END
+┌─────────────────────────────────────────────────────────────────┐
+│                        EduTutor AI Graph                        │
+│                                                                  │
+│   topic_loader → strategy_selector → explainer → question_gen   │
+│                        ↑                              ↓         │
+│                   (retry edge)      [INTERRUPT before evaluator] │
+│                        |                              ↓         │
+│                        └──── decision_gate ←── response_eval    │
+│                                    |                            │
+│                               (done edge)                       │
+│                                    ↓                            │
+│                            mastery_recorder → END               │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### True LangGraph Interrupt-Resume Cycle
-1. `graph.invoke(init, config)` runs: `topic_loader → strategy_selector → explainer → question_generator`
-2. Graph **pauses** at `interrupt_before=["response_evaluator"]`
-3. Student types their answer in the Streamlit UI
-4. `graph.invoke(Command(resume=answer), config)` **resumes** — `response_evaluator` receives the answer as its second positional arg
-5. `decision_gate` routes: `confidence ≥ 0.8 OR attempts ≥ 3` → `mastery_recorder → END`, else → `strategy_selector` (retry)
+### 🔄 How the Interrupt-Resume Cycle Works
 
----
-
-## ✨ Key Features
-
-| Feature | Detail |
-|---------|--------|
-| **5 Teaching Strategies** | Analogy, Example, Step-by-Step, Visual, Socratic |
-| **Smart Strategy Selection** | STRATEGY_PRIORITY matrix routes based on failure type (no_understanding / partial / almost) |
-| **Context-Aware Retry** | Explainer addresses the specific misconception identified in prior feedback |
-| **Adaptive Difficulty** | Questions escalate: recall → application → analysis across attempts |
-| **No Answer Leakage** | Multi-layer regex filter strips any answer-revealing lines from questions |
-| **SQLite Persistence** | `SqliteSaver` checkpointer + `concept_mastery` table survive restarts |
-| **Cross-Concept Mastery** | Persistent leaderboard across all sessions and concepts |
-| **LangGraph Graph Viz** | Sidebar expander shows `draw_mermaid()` output |
-| **Custom Concept Input** | Any CS/math concept via Wikipedia — not just 6 presets |
-| **Rich Extras** | Plotly charts, worked examples, code snippets, fun facts per concept |
+```
+Step 1  graph.invoke(init, config)
+        └─► topic_loader → strategy_selector → explainer → question_generator
+                                                                    │
+Step 2                                              Graph PAUSES ◄──┘
+                                         interrupt_before=["response_evaluator"]
+                                                        │
+Step 3                              Student types answer in Streamlit UI
+                                                        │
+Step 4  graph.invoke(Command(resume=answer), config)    │
+        └─► response_evaluator receives answer ◄────────┘
+                        │
+Step 5          decision_gate routes:
+                ├── confidence ≥ 0.8 OR attempts ≥ 3  →  mastery_recorder → END
+                └── else  →  strategy_selector (retry with new strategy)
+```
 
 ---
 
@@ -49,8 +134,8 @@ topic_loader → strategy_selector → explainer → question_generator
 ### 1. Clone & install
 
 ```bash
-git clone <your-repo-url>
-cd EduTutor
+git clone https://github.com/Mayankasnora/EduTutor-AI.git
+cd EduTutor-AI
 pip install -r requirements.txt
 ```
 
@@ -62,7 +147,7 @@ cp .env.example .env
 # GITHUB_TOKEN=ghp_your_token_here
 ```
 
-Get a free token at [github.com/settings/tokens](https://github.com/settings/tokens) — no special scopes needed for GitHub Models.
+> 💡 Get a free token at [github.com/settings/tokens](https://github.com/settings/tokens) — no special scopes needed for GitHub Models.
 
 ### 3. Run
 
@@ -70,54 +155,101 @@ Get a free token at [github.com/settings/tokens](https://github.com/settings/tok
 streamlit run app.py
 ```
 
+Then open **http://localhost:8501** in your browser. 🎉
+
 ---
 
 ## 📁 Project Structure
 
 ```
-EduTutor/
-├── app.py                  # Streamlit UI (glassmorphism design)
-├── agent/
-│   ├── graph.py            # LangGraph StateGraph + SqliteSaver
-│   ├── nodes.py            # 6 nodes: loader, selector, explainer, question_gen, evaluator, mastery_recorder
-│   ├── state.py            # EduTutorState TypedDict
-│   ├── data_fetcher.py     # Wikipedia MediaWiki API
-│   └── concept_extras.py   # Plotly charts, code, facts per concept
-├── edututor.db             # SQLite — LangGraph checkpoints + mastery table (auto-created)
-├── requirements.txt
-└── .env.example
+EduTutor-AI/
+│
+├── 📄 app.py                   # Streamlit UI (glassmorphism design)
+├── 📄 requirements.txt
+├── 📄 .env.example
+│
+└── 📂 agent/
+    ├── 🔗 graph.py             # LangGraph StateGraph + SqliteSaver
+    ├── 🧩 nodes.py             # 6 nodes: loader, selector, explainer,
+    │                           #          question_gen, evaluator, mastery_recorder
+    ├── 📦 state.py             # EduTutorState TypedDict
+    ├── 🌐 data_fetcher.py      # Wikipedia MediaWiki API
+    └── 🎨 concept_extras.py    # Plotly charts, code, facts per concept
+
+📄 edututor.db                  # SQLite — LangGraph checkpoints + mastery table
+                                # (auto-created on first run)
 ```
 
 ---
 
 ## 📋 Rubric Checklist
 
-| Rubric Requirement | Implementation |
-|-------------------|---------------|
-| ✅ LangGraph agent with reflection loop | `graph.py` — `strategy_selector ↔ response_evaluator` via `decision_gate` |
-| ✅ `interrupt_before` pause | `interrupt_before=["response_evaluator"]` |
-| ✅ True interrupt-resume via `Command(resume=)` | `submit_answer()` uses `g.invoke(Command(resume=answer), cfg)` |
-| ✅ Persistent checkpointing | `SqliteSaver` with `edututor.db` |
-| ✅ Confidence shown in UI | Progress bar + percentage in sidebar and explaining phase |
-| ✅ No strategy repetition | `strategies_used` list tracked in state |
-| ✅ 4+ explanation strategies | 5: analogy, example, step_by_step, visual, socratic |
-| ✅ Adaptive difficulty | 3-tier difficulty: recall → application → analysis |
-| ✅ Mastery tracking | `concept_mastery` SQLite table + cross-session leaderboard |
-| ✅ Graph visualisation | Sidebar "Agent Graph" expander with `draw_mermaid()` |
-| ✅ Rich extras per concept | Plotly charts, code, worked examples, fun facts tabs |
+<div align="center">
+
+| ✅ Requirement | 🔧 Implementation |
+|:---|:---|
+| LangGraph agent with reflection loop | `graph.py` — `strategy_selector ↔ response_evaluator` via `decision_gate` |
+| `interrupt_before` pause | `interrupt_before=["response_evaluator"]` |
+| True interrupt-resume via `Command(resume=)` | `submit_answer()` uses `g.invoke(Command(resume=answer), cfg)` |
+| Persistent checkpointing | `SqliteSaver` with `edututor.db` |
+| Confidence shown in UI | Progress bar + percentage in sidebar and explaining phase |
+| No strategy repetition | `strategies_used` list tracked in state |
+| 4+ explanation strategies | 5: `analogy`, `example`, `step_by_step`, `visual`, `socratic` |
+| Adaptive difficulty | 3-tier: `recall → application → analysis` |
+| Mastery tracking | `concept_mastery` SQLite table + cross-session leaderboard |
+| Graph visualisation | Sidebar "Agent Graph" expander with `draw_mermaid()` |
+| Rich extras per concept | Plotly charts · code · worked examples · fun facts |
+
+</div>
 
 ---
 
 ## 🔑 Environment Variables
 
 | Variable | Description |
-|----------|-------------|
+|:---|:---|
 | `GITHUB_TOKEN` | GitHub personal access token for [GitHub Models API](https://github.com/marketplace/models) |
 
 The app uses `gpt-4o-mini` via the GitHub Models inference endpoint (`https://models.inference.ai.azure.com`) — **completely free** with a GitHub account.
 
 ---
 
+## 👥 Team
+
+<div align="center">
+
+**Built with ❤️ by Team 5** — *Deploying and Building AI Agents*
+
+| Member | GitHub |
+|:---:|:---:|
+| Mayank Asnora | [@Mayankasnora](https://github.com/Mayankasnora) |
+
+</div>
+
+---
+
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request or open an issue if you have suggestions for new teaching strategies or UI improvements.
+Contributions, issues, and feature requests are welcome!
+
+1. **Fork** the repository
+2. Create your feature branch: `git checkout -b feat/amazing-feature`
+3. Commit your changes: `git commit -m 'feat: add amazing feature'`
+4. Push to the branch: `git push origin feat/amazing-feature`
+5. Open a **Pull Request**
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:764ba2,100:667eea&height=100&section=footer" width="100%"/>
+
+**If you found this project useful, please consider giving it a ⭐ — it means a lot!**
+
+</div>
