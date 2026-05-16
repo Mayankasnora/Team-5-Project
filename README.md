@@ -91,36 +91,20 @@ Uses `gpt-4o-mini` via the GitHub Models inference endpoint — just a free GitH
 ---
 
 ## 🏗️ Architecture
-
 ```mermaid
 flowchart TD
     A([▶ START]) --> B
-
-    B["📥 topic_loader\nFetches topic via Wikipedia API"]
-    B --> C
-
-    C["🧭 strategy_selector\nPicks strategy via STRATEGY_PRIORITY matrix"]
-    C --> D
-
-    D["💡 explainer\nExplains with targeted teaching strategy"]
-    D --> E
-
-    E["❓ question_generator\nGenerates adaptive question — no answer leakage"]
-    E --> F
-
-    F{{"⏸ INTERRUPT\ninterrupt_before=response_evaluator"}}
+    B["📥 topic_loader — Fetches topic via Wikipedia API"] --> C
+    C["🧭 strategy_selector — Picks strategy via STRATEGY_PRIORITY matrix"] --> D
+    D["💡 explainer — Explains with targeted teaching strategy"] --> E
+    E["❓ question_generator — Generates adaptive question, no answer leakage"] --> F
+    F{{"⏸ INTERRUPT — interrupt_before=response_evaluator"}}
     F -- "student submits answer" --> G
-
-    G["🔍 response_evaluator\nScores answer · detects misconception type"]
-    G --> H
-
-    H{"🚦 decision_gate\nconfidence ≥ 0.8\nOR attempts ≥ 3?"}
-
-    H -- "❌ No — retry" --> C
+    G["🔍 response_evaluator — Scores answer, detects misconception type"] --> H
+    H{"🚦 decision_gate — confidence ≥ 0.8 OR attempts ≥ 3?"}
     H -- "✅ Yes — done" --> I
-
-    I["🏆 mastery_recorder\nWrites to concept_mastery SQLite table"]
-    I --> J([⏹ END])
+    H -- "❌ No — retry" --> C
+    I["🏆 mastery_recorder — Writes to concept_mastery SQLite table"] --> J([⏹ END])
 
     style A fill:#2d1b69,stroke:#7c3aed,color:#fff
     style J fill:#2d1b69,stroke:#7c3aed,color:#fff
