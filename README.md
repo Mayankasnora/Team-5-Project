@@ -92,22 +92,47 @@ Uses `gpt-4o-mini` via the GitHub Models inference endpoint — just a free GitH
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        EduTutor AI Graph                        │
-│                                                                  │
-│   topic_loader → strategy_selector → explainer → question_gen   │
-│                        ↑                              ↓         │
-│                   (retry edge)      [INTERRUPT before evaluator] │
-│                        |                              ↓         │
-│                        └──── decision_gate ←── response_eval    │
-│                                    |                            │
-│                               (done edge)                       │
-│                                    ↓                            │
-│                            mastery_recorder → END               │
-└─────────────────────────────────────────────────────────────────┘
-```
+```mermaid
+flowchart TD
+    A([▶ START]) --> B
 
+    B["📥 topic_loader\nFetches topic via Wikipedia API"]
+    B --> C
+
+    C["🧭 strategy_selector\nPicks strategy via STRATEGY_PRIORITY matrix"]
+    C --> D
+
+    D["💡 explainer\nExplains with targeted teaching strategy"]
+    D --> E
+
+    E["❓ question_generator\nGenerates adaptive question — no answer leakage"]
+    E --> F
+
+    F{{"⏸ INTERRUPT\ninterrupt_before=response_evaluator"}}
+    F -- "student submits answer" --> G
+
+    G["🔍 response_evaluator\nScores answer · detects misconception type"]
+    G --> H
+
+    H{"🚦 decision_gate\nconfidence ≥ 0.8\nOR attempts ≥ 3?"}
+
+    H -- "❌ No — retry" --> C
+    H -- "✅ Yes — done" --> I
+
+    I["🏆 mastery_recorder\nWrites to concept_mastery SQLite table"]
+    I --> J([⏹ END])
+
+    style A fill:#2d1b69,stroke:#7c3aed,color:#fff
+    style J fill:#2d1b69,stroke:#7c3aed,color:#fff
+    style F fill:#92400e,stroke:#f59e0b,color:#fef3c7
+    style H fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
+    style B fill:#1e1b4b,stroke:#6366f1,color:#e0e7ff
+    style C fill:#1e1b4b,stroke:#6366f1,color:#e0e7ff
+    style D fill:#064e3b,stroke:#10b981,color:#d1fae5
+    style E fill:#064e3b,stroke:#10b981,color:#d1fae5
+    style G fill:#78350f,stroke:#f59e0b,color:#fef3c7
+    style I fill:#14532d,stroke:#22c55e,color:#dcfce7
+```
 ### 🔄 How the Interrupt-Resume Cycle Works
 
 ```
