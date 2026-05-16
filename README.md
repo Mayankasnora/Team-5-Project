@@ -1,7 +1,9 @@
 <div align="center">
 
 <!-- Animated Header -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:667eea,100:764ba2&height=200&section=header&text=EduTutor%20AI&fontSize=60&fontColor=ffffff&fontAlignY=38&desc=Adaptive%20AI%20Tutoring%20System&descAlignY=58&descSize=20&animation=fadeIn" width="100%"/>
+<div align="center">
+  <img src="assets/banner.svg" width="100%" alt="EduTutor AI"/>
+</div>
 
 <!-- Badges Row 1 -->
 <p>
@@ -117,25 +119,10 @@ flowchart TD
     style G fill:#78350f,stroke:#f59e0b,color:#fef3c7
     style I fill:#14532d,stroke:#22c55e,color:#dcfce7
 ```
+---
 ### 🔄 How the Interrupt-Resume Cycle Works
 
-```
-Step 1  graph.invoke(init, config)
-        └─► topic_loader → strategy_selector → explainer → question_generator
-                                                                    │
-Step 2                                              Graph PAUSES ◄──┘
-                                         interrupt_before=["response_evaluator"]
-                                                        │
-Step 3                              Student types answer in Streamlit UI
-                                                        │
-Step 4  graph.invoke(Command(resume=answer), config)    │
-        └─► response_evaluator receives answer ◄────────┘
-                        │
-Step 5          decision_gate routes:
-                ├── confidence ≥ 0.8 OR attempts ≥ 3  →  mastery_recorder → END
-                └── else  →  strategy_selector (retry with new strategy)
-```
-
+<img src="assets/interrupt_resume.svg" width="100%" alt="Interrupt Resume Cycle"/>
 ---
 
 ## 🚀 Setup
